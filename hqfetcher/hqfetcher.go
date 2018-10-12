@@ -10,9 +10,13 @@ import (
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding/unicode"
 	"log"
+	"time"
 )
-
+var rateLimiter  = time.Tick(10*time.Millisecond)
 func HqFetch(url string) ([]byte,error)  {
+
+	//限速执行
+	<-rateLimiter
 
 	req,_:=http.NewRequest(http.MethodGet,url,nil)
 	req.Header.Add("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1")

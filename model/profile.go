@@ -9,7 +9,7 @@ type Profile struct {
 	Income string
 	Marriage string
 	Education string
-	Occupation string
+	Occupation string //职业
 	Hukou string
 	Xinzuo string
 	House string

@@ -5,31 +5,38 @@ import (
 	"log"
 )
 
-func Run(seeds ...Request)  {
+type SimpleEngine struct {
+
+}
+
+
+func (e SimpleEngine)Run(seeds ...Request)  {
 
 	var requests []Request
 
 	for _,r := range seeds {
 		requests = append(requests,r)
 	}
-
+	itemCount := 0
 	for len(requests) > 0 {
 		r := requests[0]
 		requests = requests[1:]
 
 
-		paresResult,err := worker(r)
+		paresResult,err := Worker(r)
 		if err != nil {
 			continue
 		}
 		requests = append(requests,paresResult.Requests...)
+		itemCount++
 		for _,item := range paresResult.Items {
-			log.Printf("Get item %v",item)
+
+			log.Printf("Got item #%d: %v",itemCount,item)
 		}
 	}
 
 }
-func worker(r Request) (ParserResult,error)  {
+func Worker(r Request) (ParserResult,error)  {
 	log.Printf("Fetching %s\n",r.Url)
 
 	body,err := hqfetcher.HqFetch(r.Url)

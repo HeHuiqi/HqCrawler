@@ -1,0 +1,23 @@
+
+docker  info
+docker run hello-word
+docker run -it alpine sh
+docker images
+//-d重定向 -p 端口 表示重定向到本机的80端口
+docker run -d -p 80:80  nginx
+
+docker search elasticsearch
+docker run -d -p 9200:9200 nshou/elasticsearch-kibana
+
+
+//elasticsearch
+post or get
+http://localhost:9200/imooc/course/1
+
+get
+http://localhost:9200/imooc/course/_search
+
+http://localhost:9200/imooc/course/_search?q=golang
+
+get  查看结构
+http://localhost:9200/imooc/course/_mapping
