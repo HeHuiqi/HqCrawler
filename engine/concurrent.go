@@ -3,7 +3,7 @@ package engine
 type ConcurrentEngine struct {
 	Scheduler Scheduler
 	WorkerCount int
-	ItemChan chan interface{}
+	ItemChan chan Item
 }
 type Scheduler interface {
 
@@ -36,6 +36,7 @@ func (e *ConcurrentEngine) Run(seeds ...Request)  {
 			//log.Printf("Got Item #%d: %v",itemCount,item)
 			//itemCount++
 			//存储
+			//e.ItemChan <-item
 			go func() {e.ItemChan <-item}()
 		}
 		for _,req := range result.Requests {
@@ -47,8 +48,13 @@ func (e *ConcurrentEngine) Run(seeds ...Request)  {
 	}
 
 }
+var visitedUrls = make(map[string]bool)
 func isDuplicate(url string) bool  {
 
+	if visitedUrls[url] {
+		return true
+	}
+	visitedUrls[url] = true
 	return false
 }
 func createWorker(in chan Request,out chan ParserResult,ready ReadyNotifier)  {

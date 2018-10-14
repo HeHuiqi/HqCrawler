@@ -1,6 +1,8 @@
 package scheduler
 
-import "HqCrawler/engine"
+import (
+	"HqCrawler/engine"
+)
 
 type QueuedScheduler struct {
 
@@ -32,6 +34,7 @@ func (q *QueuedScheduler) Run()  {
 		var workerQ  []chan engine.Request
 
 		for {
+
 			var activeRequest engine.Request
 			var activeWorker chan engine.Request
 			if len(requestQ) > 0 && len(workerQ)>0{
