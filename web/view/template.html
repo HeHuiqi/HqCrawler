@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索</title>
+    <style type="">
+
+        .search_input {
+            align-content: center;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 30px;
+            width: 300px;
+            height: 30px;
+        }
+        .search_result {
+            width: 90%;
+            align-content: center;
+            margin: 50px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        thead {
+            font-weight: bold;
+        }
+        tr,td {
+            padding: 10px;
+            border: 1px solid #6f849c;
+            text-align: center;
+            background-color: lightblue;
+        }
+
+    </style>
+</head>
+<body>
+<div id="search">
+    <div class="search_input">
+        <form method="get" action="/search">
+            <input type="text" placeholder="请输入条件" name="q" value="{{.Query}}">
+            <input type="submit" value="开始搜索">
+        </form>
+    </div>
+    <div class="search_result">
+        <h2>共找到{{.Hits}}条记录,显示从{{.Start}}起共{{len .Items}}个</h2>
+        <table>
+            <thead>
+            <tr>
+                <td>昵称</td>
+                <td>性别</td>
+                <td>年龄</td>
+                <td>身高</td>
+                <td>收入</td>
+                <td>婚否</td>
+                <td>职业</td>
+                <td>星座</td>
+                <td>户籍</td>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range .Items}}
+
+            <tr>
+                <td><a href="{{.Url}}">{{.Payload.Name}}</a></td>
+            {{with .Payload}}
+                <td>{{.Gender}}</td>
+                <td>{{.Age}}</td>
+                <td>{{.Height}}</td>
+                <td>{{.Income}}</td>
+                <td>{{.Marriage}}</td>
+                <td>{{.Occupation}}</td>
+                <td>{{.Xinzuo}}</td>
+                <td>{{.Hukou}}</td>
+            {{end}}
+            </tr>
+            {{else}}
+            <tr><td colspan="9">没有找到相关记录</td></tr>
+            {{end}}
+            </tbody>
+
+        </table>
+        <div align="middle">
+        {{if ge .PrevFrom 0 }}
+            <a href="search?q={{.Query}}&from={{.PrevFrom}}">上一页</a>
+        {{end}}
+            <a href="search?q={{.Query}}&from={{.NextFrom}}">下一页</a>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
