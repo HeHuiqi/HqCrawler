@@ -19,7 +19,9 @@ var hukouRe = regexp.MustCompile(`<td><span class="label">籍贯：</span>([^<]+
 var xinzuoRe = regexp.MustCompile(`<td><span class="label">星座：</span>([^<]+)</td>`)
 var educationRe = regexp.MustCompile(`<td><span class="label">学历：</span>([^<]+)</td>`)
 var occupationRe  = regexp.MustCompile(`<td><span class="label">职业： </span>([^<]+)</td>`)
-func ParserProfile(contents []byte,name string) engine.ParserResult  {
+//var guessRe = regexp.MustCompile(``)
+var idUrlRe = regexp.MustCompile(`http://album.zhenai.com/u/([\d]+)`)
+func ParserProfile(contents []byte,name string,url string) engine.ParserResult  {
 
 
 	profile := model.Profile{}
@@ -51,8 +53,29 @@ func ParserProfile(contents []byte,name string) engine.ParserResult  {
 	profile.Occupation = extractString(contents,occupationRe)
 
 	result := engine.ParserResult{
-		Items:[]interface{}{profile},
+		Items:[]engine.Item{
+			{
+				Url:url,
+				Type:"zhenai",
+				Id:extractString([]byte(url),idUrlRe),
+				Payload:profile,
+			},
+		},
 	}
+
+
+	/*
+	matchs := guessRe.FindAllSubmatchIndex(contents,-1)
+	for _,m := range matchs {
+		url := string(m[1])
+		name := string(m[2])
+		result.Requests = append(result.Requests,engine.Request{
+			Url:url,
+			ParserFunc: ProfileParser(name),
+		})
+	}
+	*/
+
 
 
 	return result
@@ -66,4 +89,10 @@ func extractString(contents []byte,regex *regexp.Regexp) string  {
 
 	}
 	return ""
+}
+
+func ProfileParser(name string) engine.ParserFunc  {
+	return func(c []byte,url string) engine.ParserResult {
+		return ParserProfile(c,name,url)
+	}
 }

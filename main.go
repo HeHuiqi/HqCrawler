@@ -46,10 +46,14 @@ func main() {
 	//	Scheduler:&scheduler.SimpleScheduler{},
 	//	WorkerCount:100,
 	//}
+	itemSaver,err := persist.ItemSaver("dating_profile")
+	if err != nil {
+		panic(err)
+	}
 	e := engine.ConcurrentEngine{
 		Scheduler:&scheduler.QueuedScheduler{},
 		WorkerCount:100,
-		ItemChan:persist.ItemSaver(),
+		ItemChan:itemSaver,
 	}
 	e.Run(engine.Request{
 		Url: "http://www.zhenai.com/zhenghun",

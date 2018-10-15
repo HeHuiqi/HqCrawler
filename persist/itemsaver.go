@@ -5,42 +5,60 @@ import (
 	"github.com/olivere/elastic"
 	"context"
 	"reflect"
+	"HqCrawler/engine"
+	"github.com/pkg/errors"
+	"encoding/json"
 )
 
-func ItemSaver() chan interface{} {
-	out := make(chan interface{})
+func ItemSaver(index string) (chan engine.Item,error){
+	client,err := elastic.NewClient(
+		//Must turn off sniff in docker
+		elastic.SetSniff(false),
+	)
+	if err != nil {
+		return nil,err
+	}
+	out := make(chan engine.Item)
 	go func() {
 		itemCount := 0
 		for {
 			item := <- out
 			log.Printf("Item Saver Got Item #%d: %v",itemCount,item)
 			itemCount++
-			_,err := save(item)
+			err := save(client,index,item)
 			if err != nil {
 				log.Printf("Item Saver: error saving item %v: %v",item,err)
 			}
 		}
 	}()
-	return out
+	return out,nil
 }
-func save(item interface{}) (id string,err error)  {
-	if reflect.TypeOf(item).Name() == "string" {
-		return "",nil
+func save(client *elastic.Client,index string,item engine.Item) error  {
+
+	//这里不存储城市列表名字和某个城市下用户名
+	if reflect.TypeOf(item.Payload).Name() == "string" {
+		return nil
 	}
-	client,err := elastic.NewClient(
-		//Must turn off sniff in docker
-		elastic.SetSniff(false),
-	)
-	if err != nil {
-		return "",err
+
+	if item.Type == "" {
+		return errors.New("Must supply Type")
 	}
-	resp,err := client.Index().
-		Index("dating_profile").
-		Type("zhenai").
-		BodyJson(item).Do(context.Background())
+
+	itemJsonStr,_ := json.Marshal(item)
+	//fmt.Println("Item",string(itemJsonStr))
+
+	indexService := client.Index().
+		Index(index).
+		Type(item.Type).
+		BodyString(string(itemJsonStr))
+
+	if item.Id != "" {
+		indexService.Id(item.Id)
+	}
+	_,err := indexService.Do(context.Background())
 
 	if err != nil {
-		return "",err
+		return err
 	}
-	return resp.Id,nil
+	return nil
 }
